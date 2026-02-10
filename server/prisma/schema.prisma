@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         UserRole @default(VIEWER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum ModelStatus {
+  ACTIVE
+  PENDING
+  PAUSED
+  ARCHIVED
+}
+
+model Model {
+  id        String      @id @default(cuid())
+  fullName  String
+  status    ModelStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  niches    Niche[]
+}
+
+enum NicheStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+model Niche {
+  id              String                @id @default(cuid())
+  modelId         String
+  model           Model                 @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  nicheName       String
+  instagramHandle String                @unique
+  bio             String?
+  status          NicheStatus           @default(ACTIVE)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  assets          Asset[]
+  posts           ContentPost[]
+  ideas           Idea[]
+  dailyMetrics    AccountMetricsDaily[]
+
+  @@index([modelId])
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+}
+
+model Asset {
+  id         String      @id @default(cuid())
+  nicheId    String
+  niche      Niche       @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  type       AssetType
+  url        String
+  tags       String[]
+  notes      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  postAssets PostAsset[]
+
+  @@unique([nicheId, url])
+  @@index([nicheId])
+}
+
+enum PostType {
+  REEL
+  POST
+  STORY
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  POSTED
+}
+
+model ContentPost {
+  id          String       @id @default(cuid())
+  nicheId     String
+  niche       Niche        @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  type        PostType
+  status      PostStatus   @default(DRAFT)
+  caption     String?
+  hook        String?
+  theme       String?
+  scheduledAt DateTime?
+  postedAt    DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assets      PostAsset[]
+  metrics     PostMetric[]
+
+  @@index([nicheId])
+  @@index([status])
+}
+
+model PostAsset {
+  id         String      @id @default(cuid())
+  postId     String
+  post       ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  assetId    String
+  asset      Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  orderIndex Int
+
+  @@unique([postId, assetId])
+  @@index([postId])
+}
+
+model PostMetric {
+  id              String      @id @default(cuid())
+  postId          String
+  post            ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  date            DateTime    @db.Date
+  views           Int         @default(0)
+  likes           Int         @default(0)
+  comments        Int         @default(0)
+  saves           Int         @default(0)
+  shares          Int         @default(0)
+  followersGained Int         @default(0)
+
+  @@unique([postId, date])
+  @@index([postId])
+}
+
+model AccountMetricsDaily {
+  id            String   @id @default(cuid())
+  nicheId       String
+  niche         Niche    @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  date          DateTime @db.Date
+  followers     Int
+  reach         Int      @default(0)
+  impressions   Int      @default(0)
+  profileVisits Int      @default(0)
+
+  @@unique([nicheId, date])
+  @@index([nicheId])
+}
+
+enum IdeaStatus {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+model Idea {
+  id          String     @id @default(cuid())
+  nicheId     String
+  niche       Niche      @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  hook        String
+  description String?
+  format      String?
+  status      IdeaStatus @default(NEW)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([nicheId])
+}
