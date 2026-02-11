@@ -9,7 +9,6 @@ import {
     KeyboardSensor,
     closestCorners,
     DragStartEvent,
-    DragOverEvent,
     DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -24,7 +23,7 @@ import { Task, TaskType } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 // --- Sortable Item Component ---
-function SortableTask({ task, id }: { task: Task; id: string }) {
+function SortableTask({ task, id, onDelete }: { task: Task; id: string; onDelete: (id: string) => void }) {
     const {
         attributes,
         listeners,
@@ -53,8 +52,8 @@ function SortableTask({ task, id }: { task: Task; id: string }) {
                     <div className="flex items-center gap-2 mb-1">
                         <span
                             className={`text-xs font-bold px-2 py-0.5 rounded-full ${task.type === 'DAILY'
-                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                    : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                                ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
                                 }`}
                         >
                             {task.type === 'DAILY' ? 'DAILY' : 'ONE-OFF'}
@@ -67,9 +66,20 @@ function SortableTask({ task, id }: { task: Task; id: string }) {
                         {task.text}
                     </p>
                 </div>
-                <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 group-hover:text-gray-400">
-                    drag_indicator
-                </span>
+                <div className="flex items-center gap-2">
+                    <button
+                        onPointerDown={(e) => {
+                            e.stopPropagation(); // Prevent drag start
+                            onDelete(id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                    <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 group-hover:text-gray-400">
+                        drag_indicator
+                    </span>
+                </div>
             </div>
 
             {/* Visual indicator for drag */}
@@ -85,12 +95,14 @@ function TaskColumn({
     tasks,
     icon,
     colorClass,
+    onDelete,
 }: {
     id: string;
     title: string;
     tasks: Task[];
     icon: string;
     colorClass: string;
+    onDelete: (id: string) => void;
 }) {
     return (
         <div className="bg-gray-50/50 dark:bg-gray-800/20 rounded-2xl p-4 flex flex-col h-full border border-dashed border-gray-200 dark:border-gray-700/50">
@@ -112,7 +124,7 @@ function TaskColumn({
             >
                 <div className="flex-1 space-y-3 min-h-[100px]">
                     {tasks.map((task) => (
-                        <SortableTask key={task.id} id={task.id} task={task} />
+                        <SortableTask key={task.id} id={task.id} task={task} onDelete={onDelete} />
                     ))}
                     {tasks.length === 0 && (
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm italic py-8 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
@@ -169,6 +181,11 @@ export function StudioPage() {
         mutationFn: deleteTask,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
     });
+
+    const handleDelete = (id: string) => {
+        deleteMutation.mutate(id);
+    };
+
 
     // Handlers
     const handleDragStart = (event: DragStartEvent) => {
@@ -293,6 +310,7 @@ export function StudioPage() {
                         tasks={todoTasks}
                         icon="checklist"
                         colorClass="bg-blue-500"
+                        onDelete={handleDelete}
                     />
 
                     {/* Done Column */}
@@ -302,6 +320,7 @@ export function StudioPage() {
                         tasks={doneTasks}
                         icon="done_all"
                         colorClass="bg-green-500"
+                        onDelete={handleDelete}
                     />
                 </div>
 
@@ -309,7 +328,7 @@ export function StudioPage() {
                 <DragOverlay>
                     {activeId ? (
                         <div className="opacity-90 scale-105">
-                            <SortableTask task={tasks.find(t => t.id === activeId)!} id={activeId} />
+                            <SortableTask task={tasks.find(t => t.id === activeId)!} id={activeId} onDelete={handleDelete} />
                         </div>
                     ) : null}
                 </DragOverlay>
