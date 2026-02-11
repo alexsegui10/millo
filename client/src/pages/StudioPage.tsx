@@ -5,7 +5,8 @@ import {
     DragOverlay,
     useSensors,
     useSensor,
-    PointerSensor,
+    MouseSensor,
+    TouchSensor,
     KeyboardSensor,
     closestCorners,
     DragStartEvent,
@@ -203,7 +204,17 @@ export function StudioPage() {
 
     // Sensors for Drag and Drop
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(MouseSensor, {
+            activationConstraint: {
+                distance: 10,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
