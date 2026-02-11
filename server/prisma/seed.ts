@@ -13,10 +13,12 @@ async function main() {
     // Hash password
     const passwordHash = await bcrypt.hash(adminPassword, 10);
 
-    // Create admin user
+    // Create or update admin user (Force update password to ensure we can login)
     const admin = await prisma.user.upsert({
         where: { email: adminEmail },
-        update: {},
+        update: {
+            passwordHash, // Always update password to ensure it matches
+        },
         create: {
             email: adminEmail,
             passwordHash,
@@ -25,9 +27,11 @@ async function main() {
         },
     });
 
-    console.log(`Admin user created/verified: ${admin.email}`);
-    console.log(`Password: ${adminPassword}`);
-    console.log('Seed completed successfully!');
+    console.log('----------------------------------------');
+    console.log(`✅ Seed Successful`);
+    console.log(`👤 Admin User: ${admin.email}`);
+    console.log(`🔑 Password: ${adminPassword}`);
+    console.log('----------------------------------------');
 }
 
 main()
