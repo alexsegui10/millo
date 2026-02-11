@@ -7,6 +7,8 @@ import type {
     PostMetric,
     AccountMetricsDaily,
     Idea,
+    Task,
+    TaskType,
 } from '../types';
 
 // Models
@@ -91,3 +93,12 @@ export const uploadFile = async (file: File, folder: string = 'millo/uploads') =
         formData
     );
 };
+
+// Tasks
+export const listTasks = (params?: { type?: string }) => {
+    const query = new URLSearchParams(params as any).toString();
+    return api.get<Task[]>(`/tasks${query ? `?${query}` : ''}`);
+};
+export const createTask = (data: { text: string; type: TaskType }) => api.post<Task>('/tasks', data);
+export const toggleTask = (id: string, isDone: boolean) => api.patch<Task>(`/tasks/${id}/toggle`, { isDone });
+export const deleteTask = (id: string) => api.delete<{ id: string }>(`/tasks/${id}`);

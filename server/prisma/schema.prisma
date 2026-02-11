@@ -180,3 +180,18 @@ model Idea {
 
   @@index([nicheId])
 }
+
+enum TaskType {
+  DAILY
+  ONE_OFF
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  text      String
+  isDone    Boolean  @default(false)
+  type      TaskType @default(ONE_OFF)
+  dueDate   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

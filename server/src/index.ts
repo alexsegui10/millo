@@ -15,6 +15,9 @@ import ideaRoutes from './routes/ideas';
 import dashboardRoutes from './routes/dashboard';
 import contentRoutes from './routes/content';
 import uploadRoutes from './routes/upload';
+import taskRoutes from './routes/tasks';
+// ... (middleware)
+
 import { errorHandler } from './middleware/errorHandler';
 import { ALLOWED_ORIGINS, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS, AUTH_RATE_LIMIT_MAX } from './config/constants';
 import { logger, requestLogger } from './utils/logger';
@@ -132,6 +135,7 @@ app.use('/', assetRoutes); // Mounted at root for /niches/:nicheId/assets paths
 app.use('/', postRoutes);  // Mounted at root for /niches/:nicheId/posts paths
 app.use('/', ideaRoutes);  // Mounted at root for /niches/:nicheId/ideas paths
 app.use('/metrics', metricRoutes);
+app.use('/tasks', taskRoutes);
 app.use('/upload', uploadRoutes);
 
 // Error handler (must be last)

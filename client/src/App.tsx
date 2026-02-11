@@ -9,6 +9,7 @@ import { ContentListPage } from './pages/ContentListPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { PostDetailPage } from './pages/PostDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { StudioPage } from './pages/StudioPage';
 import { AppLayout } from './components/layout/AppLayout';
 import { isAuthenticated } from './lib/auth';
 
@@ -36,6 +37,7 @@ function App() {
                     <Route path="/niches/:nicheId" element={<NicheDetailPage />} />
                     <Route path="/content" element={<ContentListPage />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/studio" element={<StudioPage />} />
                     <Route path="/posts/:postId" element={<PostDetailPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                 </Route>

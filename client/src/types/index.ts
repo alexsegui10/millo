@@ -20,6 +20,7 @@ export type AssetType = 'IMAGE' | 'VIDEO';
 export type PostType = 'REEL' | 'POST' | 'STORY';
 export type PostStatus = 'DRAFT' | 'SCHEDULED' | 'POSTED';
 export type IdeaStatus = 'NEW' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
+export type TaskType = 'DAILY' | 'ONE_OFF';
 
 export interface Model {
     id: string;
