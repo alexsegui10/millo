@@ -5,6 +5,8 @@
 /* Custom styles from Stitch designs */
 body {
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* Hide scrollbar utility */
