@@ -1,13 +1,143 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+    DndContext,
+    DragOverlay,
+    useSensors,
+    useSensor,
+    PointerSensor,
+    KeyboardSensor,
+    closestCorners,
+    DragStartEvent,
+    DragOverEvent,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { listTasks, createTask, toggleTask, deleteTask } from '../lib/apiClient';
+import { Task, TaskType } from '../types';
 import { useNavigate } from 'react-router-dom';
 
-// Studio Page v1.1
+// --- Sortable Item Component ---
+function SortableTask({ task, id }: { task: Task; id: string }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className={`p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-3 cursor-grab active:cursor-grabbing group hover:shadow-md transition-shadow relative overflow-hidden`}
+        >
+            <div className="flex items-start justify-between">
+                <div className="flex-1 pr-4">
+                    <div className="flex items-center gap-2 mb-1">
+                        <span
+                            className={`text-xs font-bold px-2 py-0.5 rounded-full ${task.type === 'DAILY'
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                    : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                                }`}
+                        >
+                            {task.type === 'DAILY' ? 'DAILY' : 'ONE-OFF'}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                            {new Date(task.createdAt).toLocaleDateString()}
+                        </span>
+                    </div>
+                    <p className="text-gray-800 dark:text-gray-200 font-medium leading-snug">
+                        {task.text}
+                    </p>
+                </div>
+                <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 group-hover:text-gray-400">
+                    drag_indicator
+                </span>
+            </div>
+
+            {/* Visual indicator for drag */}
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+    );
+}
+
+// --- Status Column Component ---
+function TaskColumn({
+    id,
+    title,
+    tasks,
+    icon,
+    colorClass,
+}: {
+    id: string;
+    title: string;
+    tasks: Task[];
+    icon: string;
+    colorClass: string;
+}) {
+    return (
+        <div className="bg-gray-50/50 dark:bg-gray-800/20 rounded-2xl p-4 flex flex-col h-full border border-dashed border-gray-200 dark:border-gray-700/50">
+            <div className="flex items-center gap-2 mb-4 px-2">
+                <div className={`p-2 rounded-lg ${colorClass} bg-opacity-20`}>
+                    <span className={`material-symbols-outlined text-lg ${colorClass.replace('bg-', 'text-')}`}>
+                        {icon}
+                    </span>
+                </div>
+                <h3 className="font-bold text-gray-700 dark:text-gray-200">
+                    {title} <span className="ml-2 text-xs font-normal text-gray-400 bg-white dark:bg-gray-800 px-2 py-0.5 rounded-full border border-gray-100 dark:border-gray-700">{tasks.length}</span>
+                </h3>
+            </div>
+
+            <SortableContext
+                id={id}
+                items={tasks.map((t) => t.id)}
+                strategy={verticalListSortingStrategy}
+            >
+                <div className="flex-1 space-y-3 min-h-[100px]">
+                    {tasks.map((task) => (
+                        <SortableTask key={task.id} id={task.id} task={task} />
+                    ))}
+                    {tasks.length === 0 && (
+                        <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm italic py-8 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
+                            Empty list
+                        </div>
+                    )}
+                </div>
+            </SortableContext>
+        </div>
+    );
+}
+
+// --- Main Page Component ---
 export function StudioPage() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const [activeId, setActiveId] = useState<string | null>(null);
     const [newTaskText, setNewTaskText] = useState('');
+    const [taskType, setTaskType] = useState<TaskType>('ONE_OFF');
+
+    // Sensors for Drag and Drop
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
 
     // Fetch Tasks
     const { data: tasksResponse, isLoading } = useQuery({
@@ -16,8 +146,10 @@ export function StudioPage() {
     });
 
     const tasks = tasksResponse?.data || [];
-    const dailyTasks = tasks.filter((t) => t.type === 'DAILY');
-    const inboxTasks = tasks.filter((t) => t.type === 'ONE_OFF');
+
+    // Derived state for columns
+    const todoTasks = useMemo(() => tasks.filter((t) => !t.isDone), [tasks]);
+    const doneTasks = useMemo(() => tasks.filter((t) => t.isDone), [tasks]);
 
     // Mutations
     const createMutation = useMutation({
@@ -38,136 +170,150 @@ export function StudioPage() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
     });
 
-    if (isLoading) return <div className="p-10 text-center">Loading Studio...</div>;
+    // Handlers
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveId(event.active.id as string);
+    };
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (!over) {
+            setActiveId(null);
+            return;
+        }
+
+        const activeTask = tasks.find((t) => t.id === active.id);
+        if (!activeTask) return;
+
+        // Determine target container (column)
+        // The over.id could be a container ID ('todo-column', 'done-column') OR a task ID
+        let targetContainerId = over.id;
+
+        // Check if dropping over a task instead of container
+        const overTask = tasks.find((t) => t.id === over.id);
+        if (overTask) {
+            // If dropping over a task, assume the target is that task's status
+            targetContainerId = overTask.isDone ? 'done-column' : 'todo-column';
+        }
+
+        // Determine intended status
+        const isTargetDone = targetContainerId === 'done-column';
+
+        // Only update if status changed
+        if (activeTask.isDone !== isTargetDone) {
+            toggleMutation.mutate({ id: activeTask.id, isDone: isTargetDone });
+        }
+
+        setActiveId(null);
+    };
 
     const handleCreateTask = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newTaskText.trim()) return;
-        createMutation.mutate({ text: newTaskText, type: 'ONE_OFF' });
+        createMutation.mutate({ text: newTaskText, type: taskType });
     };
 
-    const handleCreateDaily = () => {
-        const text = prompt("Enter daily routine task:");
-        if (text) {
-            createMutation.mutate({ text, type: 'DAILY' });
-        }
-    };
+    if (isLoading) return (
+        <div className="flex items-center justify-center p-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+    );
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-8">
-            <header>
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-                    Studio Command Center
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400">Manage your daily flow and tasks.</p>
+        <div className="p-6 max-w-7xl mx-auto space-y-8 min-h-screen">
+            {/* Header */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-pink-500 tracking-tight">
+                        Studio Flow
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        Drag tasks to complete them.
+                    </p>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="flex gap-2">
+                    <button onClick={() => navigate('/upload')} className="rounded-xl px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors shadow-sm">
+                        <span className="material-symbols-outlined text-[18px]">cloud_upload</span> Upload
+                    </button>
+                    <button onClick={() => navigate('/content')} className="rounded-xl px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors shadow-sm">
+                        <span className="material-symbols-outlined text-[18px]">edit_note</span> Content
+                    </button>
+                </div>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* 1. Morning Routine (Daily Tasks) */}
-                <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
-                            <span className="material-symbols-outlined text-yellow-500">wb_sunny</span>
-                            Morning Routine
-                        </h2>
-                        <button onClick={handleCreateDaily} className="text-sm text-primary hover:underline">+ Add</button>
-                    </div>
-
-                    <div className="space-y-3">
-                        {dailyTasks.length === 0 && <p className="text-sm text-gray-400 italic">No daily routine set.</p>}
-                        {dailyTasks.map((task) => (
-                            <div key={task.id} className="flex items-center gap-3 group">
-                                <input
-                                    type="checkbox"
-                                    checked={task.isDone}
-                                    onChange={(e) => toggleMutation.mutate({ id: task.id, isDone: e.target.checked })}
-                                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                                />
-                                <span className={`flex-1 text-sm ${task.isDone ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
-                                    {task.text}
-                                </span>
-                                <button
-                                    onClick={() => deleteMutation.mutate(task.id)}
-                                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">delete</span>
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* 2. Shortcuts (Workflow) */}
-                <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 flex flex-col gap-4 justify-center">
-                    <h2 className="text-xl font-semibold flex items-center gap-2 mb-2">
-                        <span className="material-symbols-outlined text-purple-500">rocket_launch</span>
-                        Quick Actions
-                    </h2>
-
-                    <button onClick={() => navigate('/upload')} className="w-full p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 font-medium">
-                        <span className="material-symbols-outlined">cloud_upload</span>
-                        Upload New Assets
-                    </button>
-
-                    <button onClick={() => navigate('/content')} className="w-full p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 font-medium">
-                        <span className="material-symbols-outlined">edit_note</span>
-                        Create Content
-                    </button>
-
-                    <button onClick={() => navigate('/ideas')} className="w-full p-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-3 font-medium">
-                        <span className="material-symbols-outlined">lightbulb</span>
-                        Brainstorm Ideas
-                    </button>
-                </div>
-
-                {/* 3. Brain Dump (Inbox) */}
-                <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
-                    <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                        <span className="material-symbols-outlined text-gray-500">inbox</span>
-                        Brain Dump
-                    </h2>
-
-                    <form onSubmit={handleCreateTask} className="flex gap-2 mb-4">
-                        <input
-                            type="text"
-                            value={newTaskText}
-                            onChange={(e) => setNewTaskText(e.target.value)}
-                            placeholder="Add a quick task..."
-                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                        />
-                        <button
-                            type="submit"
-                            disabled={!newTaskText.trim() || createMutation.isPending}
-                            className="bg-primary hover:bg-primary-dark text-white px-3 py-2 rounded-lg transition-colors flex items-center justify-center"
+            {/* Task Input */}
+            <div className="bg-white dark:bg-gray-800 p-1 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 max-w-3xl mx-auto transform hover:-translate-y-1 transition-transform duration-300">
+                <form onSubmit={handleCreateTask} className="flex items-center gap-2 p-1">
+                    <div className="relative group">
+                        <select
+                            value={taskType}
+                            onChange={(e) => setTaskType(e.target.value as TaskType)}
+                            className="appearance-none bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
-                        </button>
-                    </form>
-
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                        {inboxTasks.length === 0 && <p className="text-sm text-gray-400 italic text-center py-4">Inbox zero! 🎉</p>}
-                        {inboxTasks.map((task) => (
-                            <div key={task.id} className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg group">
-                                <input
-                                    type="checkbox"
-                                    checked={task.isDone}
-                                    onChange={(e) => toggleMutation.mutate({ id: task.id, isDone: e.target.checked })}
-                                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                                />
-                                <span className={`flex-1 text-sm ${task.isDone ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
-                                    {task.text}
-                                </span>
-                                <button
-                                    onClick={() => deleteMutation.mutate(task.id)}
-                                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">close</span>
-                                </button>
-                            </div>
-                        ))}
+                            <option value="ONE_OFF">Inbox</option>
+                            <option value="DAILY">Daily</option>
+                        </select>
+                        <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">expand_more</span>
                     </div>
-                </div>
+
+                    <input
+                        type="text"
+                        value={newTaskText}
+                        onChange={(e) => setNewTaskText(e.target.value)}
+                        placeholder="What needs to be done?"
+                        className="flex-1 bg-transparent border-none focus:ring-0 text-lg placeholder-gray-400 text-gray-800 dark:text-gray-100"
+                        autoFocus
+                    />
+
+                    <button
+                        type="submit"
+                        disabled={!newTaskText.trim() || createMutation.isPending}
+                        className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl p-3 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                    </button>
+                </form>
             </div>
+
+            {/* Kanban Board */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full min-h-[500px]">
+                    {/* To Do Column */}
+                    <TaskColumn
+                        id="todo-column"
+                        title="To Do"
+                        tasks={todoTasks}
+                        icon="checklist"
+                        colorClass="bg-blue-500"
+                    />
+
+                    {/* Done Column */}
+                    <TaskColumn
+                        id="done-column"
+                        title="Completed"
+                        tasks={doneTasks}
+                        icon="done_all"
+                        colorClass="bg-green-500"
+                    />
+                </div>
+
+                {/* Overlay while dragging */}
+                <DragOverlay>
+                    {activeId ? (
+                        <div className="opacity-90 scale-105">
+                            <SortableTask task={tasks.find(t => t.id === activeId)!} id={activeId} />
+                        </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
         </div>
     );
 }
