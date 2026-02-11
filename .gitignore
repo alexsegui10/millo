@@ -48,7 +48,7 @@ server/uploads/*
 *.sqlite3
 
 # Prisma
-server/prisma/migrations/
+# server/prisma/migrations/
 
 # Gemini
 .gemini/
