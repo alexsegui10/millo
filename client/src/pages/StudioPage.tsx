@@ -20,8 +20,6 @@ export function StudioPage() {
     const dailyTasks = tasks.filter((t) => t.type === 'DAILY');
     const inboxTasks = tasks.filter((t) => t.type === 'ONE_OFF');
 
-    if (isLoading) return <div className="p-10 text-center">Loading Studio...</div>;
-
     // Mutations
     const createMutation = useMutation({
         mutationFn: createTask,
@@ -40,6 +38,8 @@ export function StudioPage() {
         mutationFn: deleteTask,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
     });
+
+    if (isLoading) return <div className="p-10 text-center">Loading Studio...</div>;
 
     const handleCreateTask = (e: React.FormEvent) => {
         e.preventDefault();
