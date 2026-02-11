@@ -16,7 +16,14 @@ export const startDailyReminders = () => {
         console.log('⏰ Running daily reminder job...');
 
         try {
-            // Get all subscriptions
+            // 1. Reset DAILY tasks
+            const resetResult = await prisma.task.updateMany({
+                where: { type: 'DAILY' },
+                data: { isDone: false },
+            });
+            console.log(`🔄 Reset ${resetResult.count} daily tasks.`);
+
+            // 2. Send Notifications
             // Prisma model is actually camelCase by default: pushSubscription
             const subscriptions = await prisma.pushSubscription.findMany();
 
@@ -27,7 +34,7 @@ export const startDailyReminders = () => {
 
             const payload = {
                 title: 'Agenda del Día 📅',
-                body: '¡Es hora de revisar tus tareas y crear contenido! 🚀',
+                body: 'Tus tareas diarias se han reiniciado. ¡A por ello! 🚀',
                 url: '/studio', // Action URL
             };
 
