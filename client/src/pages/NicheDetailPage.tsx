@@ -57,7 +57,18 @@ export function NicheDetailPage() {
         e.preventDefault();
         if (!nicheId) return;
 
-        const res = await updateNiche(nicheId, editFormData);
+        // Sanitize data: convert empty strings to undefined
+        const sanitize = (val: string) => val.trim() === '' ? undefined : val.trim();
+
+        const payload = {
+            ...editFormData,
+            nicheName: editFormData.nicheName.trim(),
+            instagramHandle: editFormData.instagramHandle.trim(),
+            imageUrl: sanitize(editFormData.imageUrl),
+            bio: sanitize(editFormData.bio),
+        };
+
+        const res = await updateNiche(nicheId, payload);
         if (res.ok && res.data) {
             setNiche(res.data);
             setShowEditModal(false);
