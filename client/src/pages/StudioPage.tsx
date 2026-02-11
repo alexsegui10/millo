@@ -152,6 +152,55 @@ export function StudioPage() {
     const [newTaskText, setNewTaskText] = useState('');
     const [taskType, setTaskType] = useState<TaskType>('ONE_OFF');
 
+    // Notifications
+    const [isSubscribed, setIsSubscribed] = useState(false);
+
+    const PUBLIC_VAPID_KEY = 'BHULqB3HsqWuCrnNPka-IMUmSUkbWwwb9lON1y5PR5ooCT1ZVP7YQ9WgjY5_KreaoPIb45gvohc6C0Y1DVsyCVc';
+
+    function urlBase64ToUint8Array(base64String: string) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    const subscribeToNotifications = async () => {
+        if (!('serviceWorker' in navigator)) return;
+
+        try {
+            const register = await navigator.serviceWorker.register('/service-worker.js', {
+                scope: '/'
+            });
+
+            const subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY)
+            });
+
+            await fetch('http://localhost:3000/api/notifications/subscribe', {
+                method: 'POST',
+                body: JSON.stringify({ subscription }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            setIsSubscribed(true);
+            alert('¡Notificaciones activadas! Te avisaremos a las 11:30 AM.');
+        } catch (err) {
+            console.error('Error al suscribirse:', err);
+            alert('Error al activar notificaciones. Asegúrate de dar permisos.');
+        }
+    };
+
     // Sensors for Drag and Drop
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -258,6 +307,13 @@ export function StudioPage() {
 
                 {/* Quick Actions */}
                 <div className="flex gap-2">
+                    <button
+                        onClick={subscribeToNotifications}
+                        className="rounded-xl px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2 shadow-sm"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">notifications_active</span>
+                        {isSubscribed ? 'Activas' : 'Activar Avisos'}
+                    </button>
                     <button onClick={() => navigate('/upload')} className="rounded-xl px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors shadow-sm">
                         <span className="material-symbols-outlined text-[18px]">cloud_upload</span> Subir
                     </button>

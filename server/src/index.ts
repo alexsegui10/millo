@@ -16,6 +16,7 @@ import dashboardRoutes from './routes/dashboard';
 import contentRoutes from './routes/content';
 import uploadRoutes from './routes/upload';
 import taskRoutes from './routes/tasks';
+import notificationRoutes from './routes/notificationRoutes';
 // ... (middleware)
 
 import { errorHandler } from './middleware/errorHandler';
@@ -137,6 +138,7 @@ app.use('/', ideaRoutes);  // Mounted at root for /niches/:nicheId/ideas paths
 app.use('/metrics', metricRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/upload', uploadRoutes);
+app.use('/notifications', notificationRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);
