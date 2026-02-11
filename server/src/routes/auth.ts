@@ -29,6 +29,8 @@ router.post('/login', async (req, res, next) => {
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
 
+        console.log(`[Login Info] User: ${email}, Found: true, PassValid: ${isValid}`);
+
         if (!isValid) {
             return res.status(401).json({
                 ok: false,
@@ -61,6 +63,7 @@ router.post('/login', async (req, res, next) => {
             },
         });
     } catch (error) {
+        console.error('[Login Error]', error);
         next(error);
     }
 });
@@ -76,6 +79,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res, next) => {
                 fullName: true,
                 role: true,
                 createdAt: true,
+                updatedAt: true,
             },
         });
 
@@ -93,25 +97,6 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res, next) => {
             ok: true,
             data: { user },
         });
-    } catch (error) {
-        next(error);
-    }
-});
-
-// GET /auth/me - Get current authenticated user
-router.get('/me', authMiddleware, async (req, res, next) => {
-    try {
-        const authReq = req as any;
-        const user = await prisma.user.findUnique({
-            where: { id: authReq.user.userId },
-            select: { id: true, email: true, fullName: true, role: true, createdAt: true, updatedAt: true }
-        });
-
-        if (!user) {
-            return res.status(404).json({ ok: false, error: { message: 'User not found', code: 'NOT_FOUND' } });
-        }
-
-        res.json({ ok: true, data: { user } });
     } catch (error) {
         next(error);
     }
