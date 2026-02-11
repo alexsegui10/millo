@@ -10,6 +10,7 @@ import {
     closestCorners,
     DragStartEvent,
     DragEndEvent,
+    useDroppable,
 } from '@dnd-kit/core';
 import {
     SortableContext,
@@ -56,7 +57,7 @@ function SortableTask({ task, id, onDelete }: { task: Task; id: string; onDelete
                                 : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
                                 }`}
                         >
-                            {task.type === 'DAILY' ? 'DAILY' : 'ONE-OFF'}
+                            {task.type === 'DAILY' ? 'DIARIO' : 'BANDEJA'}
                         </span>
                         <span className="text-xs text-gray-400">
                             {new Date(task.createdAt).toLocaleDateString()}
@@ -104,8 +105,14 @@ function TaskColumn({
     colorClass: string;
     onDelete: (id: string) => void;
 }) {
+    // Make the column droppable so we can drop items into empty columns
+    const { setNodeRef } = useDroppable({ id });
+
     return (
-        <div className="bg-gray-50/50 dark:bg-gray-800/20 rounded-2xl p-4 flex flex-col h-full border border-dashed border-gray-200 dark:border-gray-700/50">
+        <div
+            ref={setNodeRef}
+            className="bg-gray-50/50 dark:bg-gray-800/20 rounded-2xl p-4 flex flex-col h-full border border-dashed border-gray-200 dark:border-gray-700/50 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/30"
+        >
             <div className="flex items-center gap-2 mb-4 px-2">
                 <div className={`p-2 rounded-lg ${colorClass} bg-opacity-20`}>
                     <span className={`material-symbols-outlined text-lg ${colorClass.replace('bg-', 'text-')}`}>
@@ -128,7 +135,7 @@ function TaskColumn({
                     ))}
                     {tasks.length === 0 && (
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm italic py-8 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
-                            Empty list
+                            Lista vacía
                         </div>
                     )}
                 </div>
@@ -186,7 +193,6 @@ export function StudioPage() {
         deleteMutation.mutate(id);
     };
 
-
     // Handlers
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
@@ -243,20 +249,20 @@ export function StudioPage() {
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-pink-500 tracking-tight">
-                        Studio Flow
+                        Agenda Studio
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        Drag tasks to complete them.
+                        Arrastra las tareas para completarlas.
                     </p>
                 </div>
 
                 {/* Quick Actions */}
                 <div className="flex gap-2">
                     <button onClick={() => navigate('/upload')} className="rounded-xl px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors shadow-sm">
-                        <span className="material-symbols-outlined text-[18px]">cloud_upload</span> Upload
+                        <span className="material-symbols-outlined text-[18px]">cloud_upload</span> Subir
                     </button>
                     <button onClick={() => navigate('/content')} className="rounded-xl px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors shadow-sm">
-                        <span className="material-symbols-outlined text-[18px]">edit_note</span> Content
+                        <span className="material-symbols-outlined text-[18px]">edit_note</span> Contenido
                     </button>
                 </div>
             </header>
@@ -270,8 +276,8 @@ export function StudioPage() {
                             onChange={(e) => setTaskType(e.target.value as TaskType)}
                             className="appearance-none bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         >
-                            <option value="ONE_OFF">Inbox</option>
-                            <option value="DAILY">Daily</option>
+                            <option value="ONE_OFF">Bandeja</option>
+                            <option value="DAILY">Diario</option>
                         </select>
                         <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">expand_more</span>
                     </div>
@@ -280,7 +286,7 @@ export function StudioPage() {
                         type="text"
                         value={newTaskText}
                         onChange={(e) => setNewTaskText(e.target.value)}
-                        placeholder="What needs to be done?"
+                        placeholder="¿Qué hay que hacer hoy?"
                         className="flex-1 bg-transparent border-none focus:ring-0 text-lg placeholder-gray-400 text-gray-800 dark:text-gray-100"
                         autoFocus
                     />
@@ -306,7 +312,7 @@ export function StudioPage() {
                     {/* To Do Column */}
                     <TaskColumn
                         id="todo-column"
-                        title="To Do"
+                        title="Por Hacer"
                         tasks={todoTasks}
                         icon="checklist"
                         colorClass="bg-blue-500"
@@ -316,7 +322,7 @@ export function StudioPage() {
                     {/* Done Column */}
                     <TaskColumn
                         id="done-column"
-                        title="Completed"
+                        title="Completado"
                         tasks={doneTasks}
                         icon="done_all"
                         colorClass="bg-green-500"
