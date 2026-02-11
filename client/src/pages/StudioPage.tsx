@@ -8,7 +8,6 @@ export function StudioPage() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const [newTaskText, setNewTaskText] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Fetch Tasks
     const { data: tasksResponse, isLoading } = useQuery({

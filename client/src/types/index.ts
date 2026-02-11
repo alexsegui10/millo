@@ -22,6 +22,16 @@ export type PostStatus = 'DRAFT' | 'SCHEDULED' | 'POSTED';
 export type IdeaStatus = 'NEW' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
 export type TaskType = 'DAILY' | 'ONE_OFF';
 
+export interface Task {
+    id: string;
+    text: string;
+    isDone: boolean;
+    type: TaskType;
+    dueDate?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Model {
     id: string;
     fullName: string;
