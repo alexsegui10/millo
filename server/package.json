@@ -13,7 +13,8 @@
     "seed": "tsx prisma/seed.ts",
     "db:dump": "pg_dump -U postgres -d ofm_agency_hub > ../db/backup.sql",
     "db:restore": "psql -U postgres -d ofm_agency_hub < ../db/backup.sql",
-    "db:seed:sql": "psql -U postgres -d ofm_agency_hub < ../db/seed.sql"
+    "db:seed:sql": "psql -U postgres -d ofm_agency_hub < ../db/seed.sql",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",

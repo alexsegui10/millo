@@ -61,6 +61,20 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     </Link>
 
                     <Link
+                        to="/studio"
+                        onClick={onClose}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${isActive('/studio')
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-[#64748b] hover:bg-[#f8f9fc] dark:hover:bg-[#1f2937] hover:text-[#0d121b] dark:hover:text-white'
+                            } transition-colors group`}
+                    >
+                        <span className="material-symbols-outlined text-[20px] font-medium group-hover:scale-110 transition-transform">
+                            view_kanban
+                        </span>
+                        <span className="text-sm font-semibold">Studio/Agenda</span>
+                    </Link>
+
+                    <Link
                         to="/models"
                         onClick={onClose}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${isActive('/models')
