@@ -17,7 +17,7 @@ echo    App should be running shortly!
 echo    Frontend: http://localhost:5173 (or 5174)
 echo    Backend:  http://localhost:3000
 echo.
-echo    Login:    admin@ofmagency.com
+echo    Login:    admin@example.com
 echo    Password: admin123
 echo ===================================================
 pause

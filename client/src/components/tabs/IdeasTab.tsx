@@ -53,20 +53,7 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
         loadIdeas();
     };
 
-    const getStatusColor = (status: IdeaStatus) => {
-        switch (status) {
-            case 'NEW':
-                return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200';
-            case 'IN_PROGRESS':
-                return 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200';
-            case 'COMPLETED':
-                return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200';
-            case 'REJECTED':
-                return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200';
-            default:
-                return 'bg-gray-100 text-gray-700';
-        }
-    };
+
 
     const groupedIdeas = {
         NEW: ideas.filter((i) => i.status === 'NEW'),
@@ -88,11 +75,11 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                     value={filter.status}
                     onChange={(e) => setFilter({ status: e.target.value })}
                 >
-                    <option value="">All Status</option>
-                    <option value="NEW">New</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="REJECTED">Rejected</option>
+                    <option value="">Todos</option>
+                    <option value="NEW">Nuevas</option>
+                    <option value="IN_PROGRESS">En Progreso</option>
+                    <option value="COMPLETED">Completadas</option>
+                    <option value="REJECTED">Rechazadas</option>
                 </select>
                 <Button variant="primary" onClick={() => setShowCreateModal(true)} className="px-4 py-2">
                     <span className="material-symbols-outlined text-[18px]">add</span>
@@ -106,8 +93,8 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                     <span className="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4 block">
                         lightbulb
                     </span>
-                    <p className="text-gray-600 dark:text-gray-400">No ideas yet</p>
-                    <p className="text-sm text-gray-500 mt-1">Start brainstorming content ideas</p>
+                    <p className="text-gray-600 dark:text-gray-400">No hay ideas aún</p>
+                    <p className="text-sm text-gray-500 mt-1">Empieza a proponer ideas de contenido</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -115,7 +102,9 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                         <div key={status} className="flex flex-col">
                             <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                                    {status.replace('_', ' ')}
+                                    {status === 'NEW' ? 'NUEVAS' :
+                                        status === 'IN_PROGRESS' ? 'EN PROGRESO' :
+                                            status === 'COMPLETED' ? 'COMPLETADAS' : 'RECHAZADAS'}
                                 </h3>
                                 <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium">
                                     {statusIdeas.length}
@@ -146,10 +135,10 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                                                 value={idea.status}
                                                 onChange={(e) => handleStatusChange(idea.id, e.target.value as IdeaStatus)}
                                             >
-                                                <option value="NEW">New</option>
-                                                <option value="IN_PROGRESS">In Progress</option>
-                                                <option value="COMPLETED">Completed</option>
-                                                <option value="REJECTED">Rejected</option>
+                                                <option value="NEW">Nueva</option>
+                                                <option value="IN_PROGRESS">En Progreso</option>
+                                                <option value="COMPLETED">Completada</option>
+                                                <option value="REJECTED">Rechazada</option>
                                             </select>
                                             <button
                                                 onClick={() => setDeleteConfirm(idea.id)}
@@ -167,14 +156,14 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
             )}
 
             {/* Create Modal */}
-            <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Nueva Idea">
+            <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Crear Nueva Idea">
                 <form onSubmit={handleCreate} className="p-6 space-y-5">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Hook</label>
+                        <label className="text-sm font-semibold">Gancho (Hook)</label>
                         <input
                             autoFocus
                             className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                            placeholder="Main hook or title for the idea..."
+                            placeholder="Título o gancho principal para la idea..."
                             type="text"
                             value={formData.hook}
                             onChange={(e) => setFormData({ ...formData, hook: e.target.value })}
@@ -183,10 +172,10 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Description (Optional)</label>
+                        <label className="text-sm font-semibold">Descripción (Opcional)</label>
                         <textarea
                             className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm resize-none"
-                            placeholder="Describe the idea in detail..."
+                            placeholder="Describe la idea en detalle..."
                             rows={4}
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -194,10 +183,10 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Format (Optional)</label>
+                        <label className="text-sm font-semibold">Formato (Opcional)</label>
                         <input
                             className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                            placeholder="e.g., Reel, Carousel, Tutorial..."
+                            placeholder="ej., Reel, Carrusel, Tutorial..."
                             type="text"
                             value={formData.format}
                             onChange={(e) => setFormData({ ...formData, format: e.target.value })}
@@ -205,16 +194,16 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Status</label>
+                        <label className="text-sm font-semibold">Estado</label>
                         <select
                             className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value as IdeaStatus })}
                         >
-                            <option value="NEW">New</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="REJECTED">Rejected</option>
+                            <option value="NEW">Nueva</option>
+                            <option value="IN_PROGRESS">En Progreso</option>
+                            <option value="COMPLETED">Completada</option>
+                            <option value="REJECTED">Rechazada</option>
                         </select>
                     </div>
 
@@ -231,7 +220,7 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                             className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 flex items-center gap-2"
                         >
                             <span className="material-symbols-outlined text-[18px]">check</span>
-                            Create Idea
+                            Crear Idea
                         </button>
                     </div>
                 </form>
@@ -243,7 +232,7 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                 onClose={() => setDeleteConfirm(null)}
                 onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
                 title="Eliminar Idea"
-                message="Are you sure you want to delete this idea?"
+                message="¿Estás seguro de que quieres eliminar esta idea?"
                 confirmText="Eliminar"
                 variant="danger"
             />

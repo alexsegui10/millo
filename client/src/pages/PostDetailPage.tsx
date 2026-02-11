@@ -4,6 +4,7 @@ import { getPost, deletePost, upsertPostMetrics, listPostMetrics } from '../lib/
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
+import { downloadFile } from '../utils/download';
 import type { ContentPost, PostMetric } from '../types';
 
 export function PostDetailPage() {
@@ -144,17 +145,29 @@ export function PostDetailPage() {
                                     <div key={pa.asset.id} className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                                         {pa.asset.type === 'IMAGE' ? (
                                             <img
-                                                src={`http://localhost:3000${pa.asset.url}`}
+                                                src={pa.asset.url.startsWith('http') ? pa.asset.url : `http://localhost:3000${pa.asset.url}`}
                                                 alt="Asset"
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
                                             <video
-                                                src={`http://localhost:3000${pa.asset.url}`}
+                                                src={pa.asset.url.startsWith('http') ? pa.asset.url : `http://localhost:3000${pa.asset.url}`}
                                                 controls
                                                 className="w-full h-full object-cover"
                                             />
                                         )}
+                                        <div className="absolute top-2 right-2 flex gap-1">
+                                            <button
+                                                onClick={() => {
+                                                    const url = pa.asset.url.startsWith('http') ? pa.asset.url : `http://localhost:3000${pa.asset.url}`;
+                                                    downloadFile(url);
+                                                }}
+                                                className="p-1.5 bg-black/60 hover:bg-black/80 text-white rounded-md transition-colors"
+                                                title="Descargar"
+                                            >
+                                                <span className="material-symbols-outlined text-[16px]">download</span>
+                                            </button>
+                                        </div>
                                         <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
                                             {pa.orderIndex + 1}
                                         </div>

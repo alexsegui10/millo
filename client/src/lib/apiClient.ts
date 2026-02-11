@@ -7,7 +7,6 @@ import type {
     PostMetric,
     AccountMetricsDaily,
     Idea,
-    ApiResponse,
 } from '../types';
 
 // Models
@@ -37,9 +36,7 @@ export const createAsset = async (nicheId: string, file: File, notes?: string) =
     formData.append('file', file);
     if (notes) formData.append('notes', notes);
 
-    return api.post<Asset>(`/niches/${nicheId}/assets`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    return api.post<Asset>(`/niches/${nicheId}/assets`, formData);
 };
 
 export const updateAsset = (id: string, data: any) => api.patch<Asset>(`/assets/${id}`, data);
@@ -84,3 +81,13 @@ export const createIdea = (nicheId: string, data: any) =>
     api.post<Idea>(`/niches/${nicheId}/ideas`, data);
 export const updateIdea = (id: string, data: any) => api.patch<Idea>(`/ideas/${id}`, data);
 export const deleteIdea = (id: string) => api.delete<{ id: string }>(`/ideas/${id}`);
+
+// General Upload
+export const uploadFile = async (file: File, folder: string = 'millo/uploads') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<{ url: string; filename: string; mimetype: string; size: number }>(
+        `/upload?folder=${folder}`,
+        formData
+    );
+};

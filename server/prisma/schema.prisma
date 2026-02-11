@@ -52,6 +52,7 @@ model Niche {
   model           Model                 @relation(fields: [modelId], references: [id], onDelete: Cascade)
   nicheName       String
   instagramHandle String                @unique
+  imageUrl        String?
   bio             String?
   status          NicheStatus           @default(ACTIVE)
   createdAt       DateTime              @default(now())

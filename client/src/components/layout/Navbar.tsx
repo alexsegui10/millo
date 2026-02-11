@@ -10,24 +10,24 @@ export function Navbar() {
     // Build breadcrumbs dynamically based on pathname
     const buildBreadcrumbs = () => {
         const path = location.pathname;
-        const crumbs = [{ label: 'Dashboard', path: '/' }];
+        const crumbs = [{ label: 'Panel', path: '/' }];
 
         if (path.startsWith('/models')) {
-            crumbs.push({ label: 'Models', path: '/models' });
+            crumbs.push({ label: 'Modelos', path: '/models' });
             const modelMatch = path.match(/\/models\/([^\/]+)/);
             if (modelMatch) {
-                crumbs.push({ label: 'Model Detail', path: `/models/${modelMatch[1]}` });
+                crumbs.push({ label: 'Detalle del Modelo', path: `/models/${modelMatch[1]}` });
             }
         }
 
         if (path.startsWith('/niches')) {
             if (!path.match(/\/niches\/[^\/]+/)) {
-                crumbs.push({ label: 'Niches', path: '/niches' });
+                crumbs.push({ label: 'Nichos', path: '/niches' });
             } else {
                 const nicheMatch = path.match(/\/niches\/([^\/]+)/);
                 if (nicheMatch) {
-                    crumbs.push({ label: 'Niches', path: '/niches' });
-                    crumbs.push({ label: 'Niche Detail', path: `/niches/${nicheMatch[1]}` });
+                    crumbs.push({ label: 'Nichos', path: '/niches' });
+                    crumbs.push({ label: 'Detalle del Nicho', path: `/niches/${nicheMatch[1]}` });
                 }
             }
         }
@@ -35,17 +35,17 @@ export function Navbar() {
         if (path.startsWith('/posts')) {
             const postMatch = path.match(/\/posts\/([^\/]+)/);
             if (postMatch) {
-                crumbs.push({ label: 'Content', path: '/content' });
-                crumbs.push({ label: 'Post Detail', path: `/posts/${postMatch[1]}` });
+                crumbs.push({ label: 'Contenido', path: '/content' });
+                crumbs.push({ label: 'Detalle de Publicación', path: `/posts/${postMatch[1]}` });
             }
         }
 
         if (path === '/content') {
-            crumbs.push({ label: 'Content', path: '/content' });
+            crumbs.push({ label: 'Contenido', path: '/content' });
         }
 
         if (path === '/analytics') {
-            crumbs.push({ label: 'Analytics', path: '/analytics' });
+            crumbs.push({ label: 'Analíticas', path: '/analytics' });
         }
 
         if (path === '/settings') {
@@ -92,7 +92,7 @@ export function Navbar() {
                         <span className="material-symbols-outlined text-[#64748b] ml-3 text-[20px]">search</span>
                         <input
                             className="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-[#64748b] dark:text-white"
-                            placeholder="Search..."
+                            placeholder="Buscar..."
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
@@ -108,10 +108,10 @@ export function Navbar() {
                 <button
                     onClick={handleLogout}
                     className="h-10 px-4 rounded-lg bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center text-white font-semibold text-sm hover:opacity-90 transition-opacity"
-                    title="Logout"
+                    title="Cerrar Sesión"
                 >
                     <span className="material-symbols-outlined text-[18px] mr-1">logout</span>
-                    Logout
+                    Salir
                 </button>
             </div>
         </header>

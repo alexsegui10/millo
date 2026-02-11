@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { FileUpload } from './FileUpload';
+import { downloadFile } from '../../utils/download';
 import type { Asset } from '../../types';
 
 interface MediaSelectorProps {
@@ -10,7 +11,6 @@ interface MediaSelectorProps {
     onSelect: (assetId: string) => void;
     assets: Asset[];
     usedAssetIds?: string[];
-    nicheId: string;
     onUpload: (file: File) => Promise<void>;
 }
 
@@ -20,7 +20,6 @@ export function MediaSelector({
     onSelect,
     assets,
     usedAssetIds = [],
-    nicheId,
     onUpload
 }: MediaSelectorProps) {
     const [showUpload, setShowUpload] = useState(false);
@@ -73,41 +72,58 @@ export function MediaSelector({
                                 {sortedAssets.map((asset) => {
                                     const isUsed = usedAssetIds.includes(asset.id);
                                     return (
-                                        <button
+                                        <div
                                             key={asset.id}
-                                            onClick={() => {
-                                                onSelect(asset.id);
-                                                onClose();
-                                            }}
-                                            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${isUsed
-                                                    ? 'border-yellow-400 hover:border-yellow-500'
-                                                    : 'border-green-400 hover:border-green-500'
+                                            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all group ${isUsed
+                                                ? 'border-yellow-400'
+                                                : 'border-green-400 hover:border-green-500'
                                                 }`}
                                         >
-                                            {asset.type === 'IMAGE' ? (
-                                                <img
-                                                    src={`http://localhost:3000${asset.url}`}
-                                                    alt="Asset"
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <video
-                                                    src={`http://localhost:3000${asset.url}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            )}
-                                            <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold ${isUsed ? 'bg-yellow-400 text-yellow-900' : 'bg-green-400 text-green-900'
+                                            <div
+                                                onClick={() => {
+                                                    onSelect(asset.id);
+                                                    onClose();
+                                                }}
+                                                className="w-full h-full cursor-pointer"
+                                            >
+                                                {asset.type === 'IMAGE' ? (
+                                                    <img
+                                                        src={asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`}
+                                                        alt="Asset"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <video
+                                                        src={asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )}
+                                                {asset.type === 'VIDEO' && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                                                        <span className="material-symbols-outlined text-white text-4xl">
+                                                            play_circle
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold pointer-events-none ${isUsed ? 'bg-yellow-400 text-yellow-900' : 'bg-green-400 text-green-900'
                                                 }`}>
                                                 {isUsed ? 'Usado' : 'Nuevo'}
                                             </div>
-                                            {asset.type === 'VIDEO' && (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                                    <span className="material-symbols-outlined text-white text-4xl">
-                                                        play_circle
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </button>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const url = asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`;
+                                                    downloadFile(url);
+                                                }}
+                                                className="absolute bottom-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 text-white rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Descargar"
+                                            >
+                                                <span className="material-symbols-outlined text-[16px]">download</span>
+                                            </button>
+                                        </div>
                                     );
                                 })}
                             </div>

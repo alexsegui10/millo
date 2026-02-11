@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { listAssets, deleteAsset, createAsset } from '../../lib/apiClient';
-import { Button } from '../ui/Button';
 import { FileUpload } from '../ui/FileUpload';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { downloadFile } from '../../utils/download';
+import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
 import type { Asset } from '../../types';
 
 interface AssetsTabProps {
@@ -52,22 +54,25 @@ export function AssetsTab({ nicheId }: AssetsTabProps) {
         <>
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
-                <div className="flex gap-2">
-                    <select
-                        className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                        value={filter.type}
-                        onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-                    >
-                        <option value="">Todos los Tipos</option>
-                        <option value="IMAGE">Imágenes</option>
-                        <option value="VIDEO">Videos</option>
-                    </select>
-                    <input
-                        className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm w-48"
-                        placeholder="Buscar..."
-                        value={filter.q}
-                        onChange={(e) => setFilter({ ...filter, q: e.target.value })}
-                    />
+                <div className="flex gap-4 w-full sm:w-auto">
+                    <div className="w-48">
+                        <Select
+                            value={filter.type}
+                            onChange={(e) => setFilter({ ...filter, type: e.target.value })}
+                        >
+                            <option value="">Todos los Tipos</option>
+                            <option value="IMAGE">Imágenes</option>
+                            <option value="VIDEO">Videos</option>
+                        </Select>
+                    </div>
+                    <div className="w-64">
+                        <Input
+                            placeholder="Buscar assets..."
+                            value={filter.q}
+                            onChange={(e) => setFilter({ ...filter, q: e.target.value })}
+                            icon="search"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -94,9 +99,17 @@ export function AssetsTab({ nicheId }: AssetsTabProps) {
                         >
                             <div className="aspect-square bg-gray-100 dark:bg-gray-900 flex items-center justify-center relative">
                                 {asset.type === 'IMAGE' ? (
-                                    <img src={`http://localhost:3000${asset.url}`} alt="Asset" className="w-full h-full object-cover" />
+                                    <img
+                                        src={asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`}
+                                        alt="Asset"
+                                        className="w-full h-full object-cover"
+                                    />
                                 ) : (
-                                    <video src={`http://localhost:3000${asset.url}`} className="w-full h-full object-cover" controls />
+                                    <video
+                                        src={asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`}
+                                        className="w-full h-full object-cover"
+                                        controls
+                                    />
                                 )}
                                 <div className="absolute top-2 right-2">
                                     <span className="px-2 py-1 bg-black/50 text-white text-xs rounded-md">
@@ -112,14 +125,27 @@ export function AssetsTab({ nicheId }: AssetsTabProps) {
                                 )}
                                 <div className="flex gap-2 mt-3">
                                     <button
-                                        onClick={() => navigator.clipboard.writeText(`http://localhost:3000${asset.url}`)}
-                                        className="flex-1 px-2 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-xs font-medium transition-colors"
+                                        onClick={() => {
+                                            const url = asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`;
+                                            downloadFile(url);
+                                        }}
+                                        className="flex-1 px-2 py-1.5 bg-primary hover:bg-primary-dark text-white rounded text-xs font-medium transition-colors flex items-center justify-center gap-1"
+                                        title="Descargar"
                                     >
-                                        Copy Link
+                                        <span className="material-symbols-outlined text-[16px]">download</span>
+                                        Descargar
+                                    </button>
+                                    <button
+                                        onClick={() => navigator.clipboard.writeText(asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`)}
+                                        className="px-2 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                                        title="Copiar link"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">link</span>
                                     </button>
                                     <button
                                         onClick={() => setDeleteConfirm(asset.id)}
                                         className="px-2 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                                        title="Eliminar"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">delete</span>
                                     </button>

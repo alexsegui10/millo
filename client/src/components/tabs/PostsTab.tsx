@@ -6,6 +6,9 @@ import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { MediaSelector } from '../ui/MediaSelector';
+import { downloadFile } from '../../utils/download';
+import { Select } from '../ui/Select';
+import { Textarea } from '../ui/Textarea';
 import type { ContentPost, PostType, PostStatus, Asset } from '../../types';
 
 interface PostsTabProps {
@@ -114,7 +117,7 @@ export function PostsTab({ nicheId }: PostsTabProps) {
 
     const getAssetUrl = (assetId: string) => {
         const asset = assets.find(a => a.id === assetId);
-        return asset ? `http://localhost:3000${asset.url}` : '';
+        return asset ? (asset.url.startsWith('http') ? asset.url : `http://localhost:3000${asset.url}`) : '';
     };
 
     const getAssetType = (assetId: string) => {
@@ -130,26 +133,28 @@ export function PostsTab({ nicheId }: PostsTabProps) {
         <>
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
-                <div className="flex gap-2">
-                    <select
-                        className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                        value={filter.status}
-                        onChange={(e) => setFilter({ ...filter, status: e.target.value })}
-                    >
-                        <option value="">Todos los Estados</option>
-                        <option value="DRAFT">Borrador</option>
-                        <option value="POSTED">Publicado</option>
-                    </select>
-                    <select
-                        className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                        value={filter.type}
-                        onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-                    >
-                        <option value="">Todos los Tipos</option>
-                        <option value="REEL">Reel</option>
-                        <option value="POST">Publicación</option>
-                        <option value="STORY">Historia</option>
-                    </select>
+                <div className="flex gap-4 w-full sm:w-auto">
+                    <div className="w-48">
+                        <Select
+                            value={filter.status}
+                            onChange={(e) => setFilter({ ...filter, status: e.target.value })}
+                        >
+                            <option value="">Todos los Estados</option>
+                            <option value="DRAFT">Borrador</option>
+                            <option value="POSTED">Publicado</option>
+                        </Select>
+                    </div>
+                    <div className="w-48">
+                        <Select
+                            value={filter.type}
+                            onChange={(e) => setFilter({ ...filter, type: e.target.value })}
+                        >
+                            <option value="">Todos los Tipos</option>
+                            <option value="REEL">Reel</option>
+                            <option value="POST">Publicación</option>
+                            <option value="STORY">Historia</option>
+                        </Select>
+                    </div>
                 </div>
                 <Button variant="primary" onClick={() => setShowCreateModal(true)} className="px-4 py-2">
                     <span className="material-symbols-outlined text-[18px]">add</span>
@@ -177,13 +182,13 @@ export function PostsTab({ nicheId }: PostsTabProps) {
                                     {firstAsset ? (
                                         firstAsset.type === 'IMAGE' ? (
                                             <img
-                                                src={`http://localhost:3000${firstAsset.url}`}
+                                                src={firstAsset.url.startsWith('http') ? firstAsset.url : `http://localhost:3000${firstAsset.url}`}
                                                 alt="Post"
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
                                             <video
-                                                src={`http://localhost:3000${firstAsset.url}`}
+                                                src={firstAsset.url.startsWith('http') ? firstAsset.url : `http://localhost:3000${firstAsset.url}`}
                                                 className="w-full h-full object-cover"
                                             />
                                         )
@@ -215,9 +220,21 @@ export function PostsTab({ nicheId }: PostsTabProps) {
 
                                     {/* Actions */}
                                     <div className="flex gap-2">
+                                        {firstAsset && (
+                                            <button
+                                                onClick={() => {
+                                                    const url = firstAsset.url.startsWith('http') ? firstAsset.url : `http://localhost:3000${firstAsset.url}`;
+                                                    downloadFile(url);
+                                                }}
+                                                className="px-3 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                                                title="Descargar media"
+                                            >
+                                                <span className="material-symbols-outlined text-[18px]">download</span>
+                                            </button>
+                                        )}
                                         <Link
                                             to={`/posts/${post.id}`}
-                                            className="flex-1 px-3 py-2 text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
+                                            className="flex-1 px-3 py-2 text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-sm font-medium transition-colors"
                                         >
                                             Ver Detalles
                                         </Link>
@@ -248,45 +265,37 @@ export function PostsTab({ nicheId }: PostsTabProps) {
             <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Crear Nueva Publicación">
                 <form onSubmit={handleCreate} className="p-6 space-y-5">
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold">Tipo</label>
-                            <select
-                                className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                                value={formData.type}
-                                onChange={(e) => setFormData({ ...formData, type: e.target.value as PostType })}
-                            >
-                                <option value="POST">Publicación</option>
-                                <option value="REEL">Reel</option>
-                                <option value="STORY">Historia</option>
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold">Estado</label>
-                            <select
-                                className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-                                value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value as PostStatus })}
-                            >
-                                <option value="DRAFT">Borrador</option>
-                                <option value="POSTED">Publicado</option>
-                            </select>
-                        </div>
+                        <Select
+                            label="Tipo"
+                            value={formData.type}
+                            onChange={(e) => setFormData({ ...formData, type: e.target.value as PostType })}
+                        >
+                            <option value="POST">Publicación</option>
+                            <option value="REEL">Reel</option>
+                            <option value="STORY">Historia</option>
+                        </Select>
+
+                        <Select
+                            label="Estado"
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value as PostStatus })}
+                        >
+                            <option value="DRAFT">Borrador</option>
+                            <option value="POSTED">Publicado</option>
+                        </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold">Descripción</label>
-                        <textarea
-                            className="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm resize-none"
-                            placeholder="Descripción de la publicación..."
-                            rows={4}
-                            value={formData.caption}
-                            onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                        />
-                    </div>
+                    <Textarea
+                        label="Descripción"
+                        placeholder="Descripción de la publicación..."
+                        rows={4}
+                        value={formData.caption}
+                        onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
+                    />
 
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                            <label className="text-sm font-semibold">Media</label>
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Media</label>
                             <Button
                                 type="button"
                                 variant="secondary"
@@ -329,20 +338,21 @@ export function PostsTab({ nicheId }: PostsTabProps) {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">
-                        <button
+                        <Button
                             type="button"
+                            variant="secondary"
                             onClick={() => setShowCreateModal(false)}
-                            className="px-5 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                         >
                             Cancelar
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 flex items-center gap-2"
+                            variant="primary"
+                            className="flex items-center gap-2"
                         >
                             <span className="material-symbols-outlined text-[18px]">check</span>
                             Crear Publicación
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </Modal>
@@ -354,7 +364,6 @@ export function PostsTab({ nicheId }: PostsTabProps) {
                 onSelect={handleSelectAsset}
                 assets={assets}
                 usedAssetIds={usedAssetIds}
-                nicheId={nicheId}
                 onUpload={handleUploadInModal}
             />
 

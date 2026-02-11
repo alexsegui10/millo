@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Modal } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { Textarea } from '../components/ui/Textarea';
 import { useSearch } from '../context/SearchContext';
 
 interface PostWithNiche {
@@ -116,42 +119,40 @@ export function ContentListPage() {
     return (
         <div className="px-8 py-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-black text-gray-900 dark:text-white">All Contenido</h1>
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white">Todo el Contenido</h1>
                 <button
                     onClick={() => setShowCreateModal(true)}
                     className="px-5 py-2.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors"
                 >
-                    + New Post
+                    + Nuevo Post
                 </button>
             </div>
 
             {/* Toolbar */}
             <div className="flex gap-4 items-center mb-6">
-                <div>
-                    <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Status</label>
-                    <select
+                <div className="w-48">
+                    <Select
+                        label="Estado"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 bg-white dark:bg-[#1f2937] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-white"
                     >
-                        <option value="">All</option>
-                        <option value="DRAFT">Draft</option>
-                        <option value="SCHEDULED">Scheduled</option>
-                        <option value="POSTED">Posted</option>
-                    </select>
+                        <option value="">Todos</option>
+                        <option value="DRAFT">Borrador</option>
+                        <option value="SCHEDULED">Programado</option>
+                        <option value="POSTED">Publicado</option>
+                    </Select>
                 </div>
-                <div>
-                    <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Type</label>
-                    <select
+                <div className="w-48">
+                    <Select
+                        label="Tipo"
                         value={typeFilter}
                         onChange={(e) => setTypeFilter(e.target.value)}
-                        className="px-4 py-2 bg-white dark:bg-[#1f2937] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-white"
                     >
-                        <option value="">All</option>
+                        <option value="">Todos</option>
                         <option value="REEL">Reel</option>
                         <option value="POST">Post</option>
                         <option value="STORY">Story</option>
-                    </select>
+                    </Select>
                 </div>
             </div>
 
@@ -160,7 +161,7 @@ export function ContentListPage() {
                 <div className="bg-white dark:bg-[#1f2937] rounded-xl p-12 text-center shadow-sm border border-gray-100 dark:border-gray-800">
                     <span className="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">post_add</span>
                     <p className="text-gray-500 dark:text-gray-400">
-                        {statusFilter || typeFilter || query ? 'No posts match your filters' : 'No posts yet. Create your first one!'}
+                        {statusFilter || typeFilter || query ? 'No hay posts que coincidan con los filtros' : 'No hay posts aún. ¡Crea el primero!'}
                     </p>
                 </div>
             ) : (
@@ -168,12 +169,12 @@ export function ContentListPage() {
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Type</th>
-                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Hook / Theme</th>
-                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Niche</th>
-                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
-                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Date</th>
-                                <th className="py-3 px-6 text-right font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Tipo</th>
+                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Gancho / Tema</th>
+                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Nicho</th>
+                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Estado</th>
+                                <th className="py-3 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Fecha</th>
+                                <th className="py-3 px-6 text-right font-semibold text-gray-700 dark:text-gray-300">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -197,7 +198,7 @@ export function ContentListPage() {
                                                     : 'bg-gray-100 text-gray-700'
                                                 }`}
                                         >
-                                            {post.status}
+                                            {post.status === 'POSTED' ? 'PUBLICADO' : post.status === 'SCHEDULED' ? 'PROGRAMADO' : 'BORRADOR'}
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-gray-600 dark:text-gray-400">
@@ -212,7 +213,7 @@ export function ContentListPage() {
                                             to={`/posts/${post.id}`}
                                             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                                         >
-                                            Open
+                                            Abrir
                                             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                                         </Link>
                                     </td>
@@ -239,66 +240,46 @@ export function ContentListPage() {
                 title="Crear Nueva Publicación"
             >
                 <form onSubmit={handleCreate} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Niche *
-                        </label>
-                        <select
-                            value={formData.nicheId}
-                            onChange={(e) => setFormData({ ...formData, nicheId: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                            required
-                        >
-                            <option value="">Select a niche...</option>
-                            {niches.map((niche) => (
-                                <option key={niche.id} value={niche.id}>
-                                    {niche.nicheName} (@{niche.instagramHandle}) - {niche.model?.fullName}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <Select
+                        label="Nicho *"
+                        value={formData.nicheId}
+                        onChange={(e) => setFormData({ ...formData, nicheId: e.target.value })}
+                        required
+                    >
+                        <option value="">Selecciona un nicho...</option>
+                        {niches.map((niche) => (
+                            <option key={niche.id} value={niche.id}>
+                                {niche.nicheName} (@{niche.instagramHandle}) - {niche.model?.fullName}
+                            </option>
+                        ))}
+                    </Select>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Contenido Type *
-                        </label>
-                        <select
-                            value={formData.type}
-                            onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                            required
-                        >
-                            <option value="REEL">Reel</option>
-                            <option value="POST">Post</option>
-                            <option value="STORY">Story</option>
-                        </select>
-                    </div>
+                    <Select
+                        label="Tipo de Contenido *"
+                        value={formData.type}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                        required
+                    >
+                        <option value="REEL">Reel</option>
+                        <option value="POST">Post</option>
+                        <option value="STORY">Story</option>
+                    </Select>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Hook
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.hook}
-                            onChange={(e) => setFormData({ ...formData, hook: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                            placeholder="Eye-catching hook for your content"
-                        />
-                    </div>
+                    <Input
+                        label="Gancho (Hook)"
+                        type="text"
+                        value={formData.hook}
+                        onChange={(e) => setFormData({ ...formData, hook: e.target.value })}
+                        placeholder="Gancho atractivo para tu contenido"
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Theme
-                        </label>
-                        <textarea
-                            value={formData.theme}
-                            onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
-                            rows={3}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                            placeholder="Main theme or concept"
-                        />
-                    </div>
+                    <Textarea
+                        label="Tema"
+                        value={formData.theme}
+                        onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
+                        rows={3}
+                        placeholder="Tema principal o concepto"
+                    />
 
                     <div className="flex justify-end gap-3 pt-4">
                         <Button
@@ -318,7 +299,7 @@ export function ContentListPage() {
                             Cancelar
                         </Button>
                         <Button type="submit" variant="primary">
-                            Create Post
+                            Crear Post
                         </Button>
                     </div>
                 </form>

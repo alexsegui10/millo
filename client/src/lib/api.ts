@@ -16,8 +16,8 @@ class ApiClient {
     ): Promise<ApiResponse<T>> {
         const token = getAuthToken();
 
-        const headers: HeadersInit = {
-            ...options.headers,
+        const headers: Record<string, string> = {
+            ...(options.headers as Record<string, string>),
         };
 
         // Only set Content-Type if body is not FormData

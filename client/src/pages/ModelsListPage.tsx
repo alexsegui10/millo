@@ -5,6 +5,9 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Dropdown, DropdownItem } from '../components/ui/Dropdown';
+import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { Textarea } from '../components/ui/Textarea';
 import type { Model, ModelStatus } from '../types';
 
 export function ModelsListPage() {
@@ -85,7 +88,7 @@ export function ModelsListPage() {
             <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-[#64748b]">Loading models...</p>
+                    <p className="text-[#64748b]">Cargando modelos...</p>
                 </div>
             </div>
         );
@@ -98,16 +101,16 @@ export function ModelsListPage() {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                     <div>
                         <h1 className="text-3xl font-black tracking-tight text-text-main dark:text-white">
-                            Models Directory
+                            Directorio de Modelos
                         </h1>
                         <p className="text-text-secondary dark:text-gray-400 mt-1">
-                            Manage your talent roster, track status, and monitor performance.
+                            Gestiona tu lista de talentos, rastrea estados y monitorea el rendimiento.
                         </p>
                     </div>
                     <div className="flex gap-3">
                         <Button variant="secondary" className="px-4 py-2.5">
                             <span className="material-symbols-outlined text-[20px]">file_download</span>
-                            <span>Export CSV</span>
+                            <span>Exportar CSV</span>
                         </Button>
                         <Button
                             variant="primary"
@@ -115,7 +118,7 @@ export function ModelsListPage() {
                             onClick={() => setShowCreateModal(true)}
                         >
                             <span className="material-symbols-outlined text-[20px]">add</span>
-                            <span>Crear modelo</span>
+                            <span>Crear Modelo</span>
                         </Button>
                     </div>
                 </div>
@@ -123,12 +126,10 @@ export function ModelsListPage() {
                 {/* Toolbar */}
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-[#1a2230] p-2 rounded-xl shadow-sm border border-[#e2e8f0] dark:border-[#2d3748] mb-6">
                     <div className="relative flex-1 w-full max-w-md">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary dark:text-gray-500">
-                            <span className="material-symbols-outlined text-[20px]">search</span>
-                        </span>
-                        <input
-                            className="w-full h-10 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-[#1a2230] focus:ring-0 text-sm text-text-main dark:text-white placeholder-text-secondary dark:placeholder-gray-500 transition-all"
-                            placeholder="Search models by name, email..."
+                        <Input
+                            icon="search"
+                            className="bg-background-light dark:bg-background-dark/50 border-transparent focus:bg-white dark:focus:bg-[#1a2230]"
+                            placeholder="Buscar modelos por nombre, email..."
                             type="text"
                         />
                     </div>
@@ -141,19 +142,19 @@ export function ModelsListPage() {
                             <thead>
                                 <tr className="border-b border-[#e2e8f0] dark:border-[#2d3748] bg-gray-50/50 dark:bg-white/5">
                                     <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-gray-400 w-[35%]">
-                                        Model Details
+                                        Detalles del Modelo
                                     </th>
                                     <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-gray-400 w-[15%]">
-                                        Status
+                                        Estado
                                     </th>
                                     <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-gray-400 w-[20%]">
-                                        Niches Linked
+                                        Nichos Vinculados
                                     </th>
                                     <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-gray-400 w-[20%]">
-                                        Created
+                                        Creado
                                     </th>
                                     <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-gray-400 w-[10%] text-right">
-                                        Actions
+                                        Acciones
                                     </th>
                                 </tr>
                             </thead>
@@ -165,9 +166,9 @@ export function ModelsListPage() {
                                                 <span className="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">
                                                     group_off
                                                 </span>
-                                                <p className="text-gray-600 dark:text-gray-400 font-medium">No models yet</p>
+                                                <p className="text-gray-600 dark:text-gray-400 font-medium">No hay modelos aún</p>
                                                 <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                                                    Create your first model to get started
+                                                    Crea tu primer modelo para comenzar
                                                 </p>
                                             </div>
                                         </td>
@@ -209,7 +210,7 @@ export function ModelsListPage() {
                                                         {model.nicheCount || 0}
                                                     </span>
                                                     <span className="text-xs text-text-secondary dark:text-gray-500">
-                                                        {model.nicheCount === 1 ? 'Account' : 'Accounts'}
+                                                        {model.nicheCount === 1 ? 'Cuenta' : 'Cuentas'}
                                                     </span>
                                                 </div>
                                             </td>
@@ -249,68 +250,39 @@ export function ModelsListPage() {
             <Modal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
-                title="Create Nuevo Modelo"
+                title="Crear Nuevo Modelo"
             >
                 <form onSubmit={handleCreate} className="p-6 space-y-5">
-                    {/* Full Name */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="full-name">
-                            Full Name
-                        </label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span className="material-symbols-outlined text-slate-400 text-[20px]">person</span>
-                            </div>
-                            <input
-                                autoFocus
-                                className="block w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
-                                id="full-name"
-                                placeholder="e.g. Jane Doe"
-                                type="text"
-                                value={formData.fullName}
-                                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                required
-                            />
-                        </div>
-                    </div>
+                    <Input
+                        label="Nombre Completo"
+                        icon="person"
+                        autoFocus
+                        placeholder="Ej: Maria Perez"
+                        type="text"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        required
+                    />
 
-                    {/* Status */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="status">
-                            Current Status
-                        </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span className="material-symbols-outlined text-slate-400 text-[20px]">toggle_on</span>
-                            </div>
-                            <select
-                                className="block w-full pl-10 pr-10 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm appearance-none cursor-pointer"
-                                id="status"
-                                value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value as ModelStatus })}
-                            >
-                                <option value="ACTIVE">Active</option>
-                                <option value="PENDING">Pending Onboarding</option>
-                                <option value="PAUSED">Paused</option>
-                                <option value="ARCHIVED">Archived</option>
-                            </select>
-                        </div>
-                    </div>
+                    <Select
+                        label="Estado Actual"
+                        icon="toggle_on"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as ModelStatus })}
+                    >
+                        <option value="ACTIVE">Activo</option>
+                        <option value="PENDING">Pendiente</option>
+                        <option value="PAUSED">Pausado</option>
+                        <option value="ARCHIVED">Archivado</option>
+                    </Select>
 
-                    {/* Notes */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="notes">
-                            Internal Notes <span className="text-slate-400 font-normal ml-1">(Optional)</span>
-                        </label>
-                        <textarea
-                            className="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm resize-none"
-                            id="notes"
-                            placeholder="Add specific notes about niches, content requirements, or account restrictions..."
-                            rows={4}
-                            value={formData.notes}
-                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                        />
-                    </div>
+                    <Textarea
+                        label="Notas Internas (Opcional)"
+                        placeholder="Añade notas específicas, requerimientos o restricciones..."
+                        rows={4}
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    />
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3 pt-4">
@@ -319,7 +291,7 @@ export function ModelsListPage() {
                             type="button"
                             onClick={() => setShowCreateModal(false)}
                         >
-                            Cancelarar
+                            Cancelar
                         </button>
                         <button
                             className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 shadow-sm hover:shadow transition-all flex items-center gap-2"
@@ -343,45 +315,30 @@ export function ModelsListPage() {
                 title="Editar Modelo"
             >
                 <form onSubmit={handleEdit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Full Name *
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.fullName}
-                            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                            required
-                        />
-                    </div>
+                    <Input
+                        label="Nombre Completo *"
+                        type="text"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        required
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Status
-                        </label>
-                        <select
-                            value={formData.status}
-                            onChange={(e) => setFormData({ ...formData, status: e.target.value as ModelStatus })}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                        >
-                            <option value="ACTIVE">Active</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="INACTIVE">Inactive</option>
-                        </select>
-                    </div>
+                    <Select
+                        label="Estado"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as ModelStatus })}
+                    >
+                        <option value="ACTIVE">Activo</option>
+                        <option value="PENDING">Pendiente</option>
+                        <option value="INACTIVE">Inactivo</option>
+                    </Select>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Notes
-                        </label>
-                        <textarea
-                            value={formData.notes}
-                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            rows={3}
-                            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-[#1f2937] text-gray-900 dark:text-white"
-                        />
-                    </div>
+                    <Textarea
+                        label="Notas"
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        rows={3}
+                    />
 
                     <div className="flex justify-end gap-3 pt-4">
                         <Button
@@ -396,7 +353,7 @@ export function ModelsListPage() {
                             Cancelar
                         </Button>
                         <Button type="submit" variant="primary">
-                            Update Model
+                            Actualizar Modelo
                         </Button>
                     </div>
                 </form>
@@ -413,10 +370,10 @@ export function ModelsListPage() {
             >
                 <div className="space-y-4">
                     <p className="text-gray-700 dark:text-gray-300">
-                        Are you sure you want to delete <strong>{selectedModel?.fullName}</strong>?
+                        ¿Estás seguro de que deseas eliminar a <strong>{selectedModel?.fullName}</strong>?
                     </p>
                     <p className="text-sm text-red-600 dark:text-red-400">
-                        This action will delete all associated Niches, Posts, Assets, and Metrics. This cannot be undone.
+                        Esta acción eliminará todos los Nichos, Posts, Assets y Métricas asociados. Esta acción no se puede deshacer.
                     </p>
 
                     <div className="flex justify-end gap-3 pt-4">

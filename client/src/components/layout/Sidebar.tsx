@@ -41,7 +41,7 @@ export function Sidebar() {
                     <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">
                         group
                     </span>
-                    <span className="text-sm font-medium">Models</span>
+                    <span className="text-sm font-medium">Modelos</span>
                 </Link>
 
                 <Link
@@ -103,7 +103,7 @@ export function Sidebar() {
                     className="w-full flex items-center justify-center gap-2 rounded-xl h-10 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/30 hover:bg-blue-600 transition-colors"
                 >
                     <span className="material-symbols-outlined text-[18px]">add</span>
-                    Add New Model
+                    Añadir Modelo
                 </Link>
             </div>
         </aside>

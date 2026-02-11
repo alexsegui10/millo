@@ -37,6 +37,7 @@ export interface Niche {
     modelId: string;
     nicheName: string;
     instagramHandle: string;
+    imageUrl?: string;
     bio?: string;
     status: NicheStatus;
     createdAt: string;

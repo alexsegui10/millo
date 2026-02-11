@@ -23,6 +23,7 @@ export const updateModelSchema = z.object({
 export const createNicheSchema = z.object({
     nicheName: z.string().trim().min(1),
     instagramHandle: z.string().trim().min(1).regex(/^[a-zA-Z0-9._]+$/, 'Instagram handle must contain only letters, numbers, dots, and underscores'),
+    imageUrl: z.string().trim().url().optional(),
     bio: z.string().trim().optional(),
     status: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']).optional(),
 });
@@ -30,6 +31,7 @@ export const createNicheSchema = z.object({
 export const updateNicheSchema = z.object({
     nicheName: z.string().trim().min(1).optional(),
     instagramHandle: z.string().trim().min(1).regex(/^[a-zA-Z0-9._]+$/, 'Instagram handle must contain only letters, numbers, dots, and underscores').optional(),
+    imageUrl: z.string().trim().url().optional(),
     bio: z.string().trim().optional(),
     status: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']).optional(),
 });
