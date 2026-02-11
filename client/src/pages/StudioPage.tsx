@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listTasks, createTask, toggleTask, deleteTask } from '../lib/apiClient';
 import { useNavigate } from 'react-router-dom';
 
+// Studio Page v1.1
 export function StudioPage() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
