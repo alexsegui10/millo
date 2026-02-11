@@ -94,7 +94,7 @@ export function ModelDetailPage() {
 
     return (
         <>
-            <div className="px-8 py-6">
+            <div className="px-4 md:px-8 py-6">
                 {/* Breadcrumbs */}
                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
                     <Link to="/models" className="hover:text-primary">Modelos</Link>
@@ -103,17 +103,17 @@ export function ModelDetailPage() {
                 </div>
 
                 {/* Header */}
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <h1 className="text-3xl font-black text-gray-900 dark:text-white">{model.fullName}</h1>
+                            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">{model.fullName}</h1>
                             <Badge status={model.status} variant="dot" />
                         </div>
                         {model.notes && (
                             <p className="text-sm text-gray-600 dark:text-gray-400">{model.notes}</p>
                         )}
                     </div>
-                    <Button variant="primary" onClick={() => setShowCreateModal(true)} className="px-5 py-2.5">
+                    <Button variant="primary" onClick={() => setShowCreateModal(true)} className="w-full md:w-auto px-5 py-2.5 justify-center">
                         <span className="material-symbols-outlined text-[20px]">add</span>
                         Crear Nicho
                     </Button>
@@ -129,7 +129,7 @@ export function ModelDetailPage() {
                         <p className="text-sm text-gray-500 mt-1">Crea la primera cuenta de Instagram para este modelo</p>
                     </Card>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                         {niches.map((niche) => (
                             <Card key={niche.id} hover className="flex flex-col">
                                 <div className="flex items-start gap-4 mb-3">

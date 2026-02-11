@@ -2,7 +2,11 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { logout } from '../../lib/auth';
 import { useSearch } from '../../context/SearchContext';
 
-export function Navbar() {
+interface NavbarProps {
+    onMenuClick?: () => void;
+}
+
+export function Navbar({ onMenuClick }: NavbarProps) {
     const location = useLocation();
     const navigate = useNavigate();
     const { query, setQuery } = useSearch();
@@ -66,29 +70,38 @@ export function Navbar() {
     };
 
     return (
-        <header className="flex-shrink-0 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-[#151c2b]/80 backdrop-blur-sm border-b border-[#e7ebf3] dark:border-[#1f2937] z-10">
-            <div className="flex flex-col">
-                <div className="flex items-center gap-2 text-sm text-[#64748b]">
-                    {breadcrumbs.map((crumb, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                            {idx > 0 && <span className="material-symbols-outlined text-[10px]">arrow_forward_ios</span>}
-                            <Link
-                                to={crumb.path}
-                                className={idx === breadcrumbs.length - 1 ? "font-medium text-[#0d121b] dark:text-white" : "hover:text-primary"}
-                            >
-                                {crumb.label}
-                            </Link>
-                        </div>
-                    ))}
+        <header className="flex-shrink-0 flex items-center justify-between px-4 lg:px-8 py-4 bg-white/80 dark:bg-[#151c2b]/80 backdrop-blur-sm border-b border-[#e7ebf3] dark:border-[#1f2937] z-10 sticky top-0">
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={onMenuClick}
+                    className="lg:hidden p-2 -ml-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                    <span className="material-symbols-outlined">menu</span>
+                </button>
+
+                <div className="flex flex-col">
+                    <div className="hidden sm:flex items-center gap-2 text-sm text-[#64748b]">
+                        {breadcrumbs.map((crumb, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                                {idx > 0 && <span className="material-symbols-outlined text-[10px]">arrow_forward_ios</span>}
+                                <Link
+                                    to={crumb.path}
+                                    className={idx === breadcrumbs.length - 1 ? "font-medium text-[#0d121b] dark:text-white" : "hover:text-primary"}
+                                >
+                                    {crumb.label}
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                    <h2 className="text-xl font-bold text-[#0d121b] dark:text-white mt-1">
+                        {breadcrumbs[breadcrumbs.length - 1]?.label}
+                    </h2>
                 </div>
-                <h2 className="text-xl font-bold text-[#0d121b] dark:text-white mt-1">
-                    {breadcrumbs[breadcrumbs.length - 1]?.label}
-                </h2>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-4">
                 {showSearch && (
-                    <div className="relative hidden md:flex items-center w-64 h-10 rounded-xl bg-[#f0f2f5] dark:bg-[#1f2937]">
+                    <div className="relative hidden md:flex items-center w-48 lg:w-64 h-10 rounded-xl bg-[#f0f2f5] dark:bg-[#1f2937]">
                         <span className="material-symbols-outlined text-[#64748b] ml-3 text-[20px]">search</span>
                         <input
                             className="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-[#64748b] dark:text-white"
@@ -107,11 +120,11 @@ export function Navbar() {
 
                 <button
                     onClick={handleLogout}
-                    className="h-10 px-4 rounded-lg bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+                    className="h-10 px-3 lg:px-4 rounded-lg bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center text-white font-semibold text-sm hover:opacity-90 transition-opacity"
                     title="Cerrar Sesión"
                 >
-                    <span className="material-symbols-outlined text-[18px] mr-1">logout</span>
-                    Salir
+                    <span className="material-symbols-outlined text-[18px] lg:mr-1">logout</span>
+                    <span className="hidden lg:inline">Salir</span>
                 </button>
             </div>
         </header>

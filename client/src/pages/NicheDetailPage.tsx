@@ -122,9 +122,9 @@ export function NicheDetailPage() {
     ];
 
     return (
-        <div className="px-8 py-6">
+        <div className="px-4 md:px-8 py-6">
             {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-4">
                 <Link to="/models" className="hover:text-primary">Models</Link>
                 <span className="material-symbols-outlined text-[10px]">arrow_forward_ios</span>
                 {niche.model && (
@@ -135,13 +135,13 @@ export function NicheDetailPage() {
                         <span className="material-symbols-outlined text-[10px]">arrow_forward_ios</span>
                     </>
                 )}
-                <span className="text-gray-900 dark:text-white font-medium">{niche.nicheName}</span>
+                <span className="text-gray-900 dark:text-white font-medium truncate max-w-[150px] sm:max-w-none">{niche.nicheName}</span>
             </div>
 
             {/* Header */}
-            <div className="flex items-center gap-6 mb-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
                 {/* Avatar */}
-                <div className="flex-shrink-0 w-24 h-24 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600">
+                <div className="flex-shrink-0 w-24 h-24 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 self-center md:self-auto">
                     {niche.imageUrl ? (
                         <img
                             src={niche.imageUrl}
@@ -155,21 +155,23 @@ export function NicheDetailPage() {
                     )}
                 </div>
 
-                <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white">{niche.nicheName}</h1>
+                <div className="flex-1 w-full text-center md:text-left">
+                    <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 mb-1 justify-center md:justify-start">
+                        <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">{niche.nicheName}</h1>
                         <Badge status={niche.status} variant="dot" />
                     </div>
                     <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">@{niche.instagramHandle}</p>
                     {niche.bio && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-2xl">{niche.bio}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto md:mx-0">{niche.bio}</p>
                     )}
                 </div>
 
-                <Button variant="secondary" onClick={() => setShowEditModal(true)}>
-                    <span className="material-symbols-outlined text-[20px]">edit</span>
-                    Editar Nicho
-                </Button>
+                <div className="w-full md:w-auto flex justify-center md:block">
+                    <Button variant="secondary" onClick={() => setShowEditModal(true)} className="w-full md:w-auto justify-center">
+                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                        Editar Nicho
+                    </Button>
+                </div>
             </div>
 
             {/* Tabs */}
