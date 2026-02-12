@@ -334,38 +334,39 @@ export function StudioPage() {
                 </div>
             </header>
 
-            {/* Task Input */}
-            <div className="bg-white dark:bg-gray-800 p-1 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 max-w-3xl mx-auto transform hover:-translate-y-1 transition-transform duration-300">
-                <form onSubmit={handleCreateTask} className="flex items-center gap-2 p-1">
-                    <div className="relative group">
-                        <select
-                            value={taskType}
-                            onChange={(e) => setTaskType(e.target.value as TaskType)}
-                            className="appearance-none bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            {/* Task Input (Sticky Bottom on Mobile) */}
+            <div className="fixed bottom-4 left-4 right-4 z-50 md:static md:max-w-3xl md:mx-auto md:transform md:hover:-translate-y-1 md:transition-transform md:duration-300">
+                <div className="bg-white dark:bg-gray-800 p-1 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700">
+                    <form onSubmit={handleCreateTask} className="flex items-center gap-2 p-1">
+                        <div className="relative group">
+                            <select
+                                value={taskType}
+                                onChange={(e) => setTaskType(e.target.value as TaskType)}
+                                className="appearance-none bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-4 pr-8 text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            >
+                                <option value="ONE_OFF">Inbox</option>
+                                <option value="DAILY">Daily</option>
+                            </select>
+                            <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">expand_more</span>
+                        </div>
+
+                        <input
+                            type="text"
+                            value={newTaskText}
+                            onChange={(e) => setNewTaskText(e.target.value)}
+                            placeholder="Nueva tarea..."
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-base md:text-lg placeholder-gray-400 text-gray-800 dark:text-gray-100 min-w-0"
+                        />
+
+                        <button
+                            type="submit"
+                            disabled={!newTaskText.trim() || createMutation.isPending}
+                            className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl p-3 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                         >
-                            <option value="ONE_OFF">Bandeja</option>
-                            <option value="DAILY">Diario</option>
-                        </select>
-                        <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">expand_more</span>
-                    </div>
-
-                    <input
-                        type="text"
-                        value={newTaskText}
-                        onChange={(e) => setNewTaskText(e.target.value)}
-                        placeholder="¿Qué hay que hacer hoy?"
-                        className="flex-1 bg-transparent border-none focus:ring-0 text-lg placeholder-gray-400 text-gray-800 dark:text-gray-100"
-                        autoFocus
-                    />
-
-                    <button
-                        type="submit"
-                        disabled={!newTaskText.trim() || createMutation.isPending}
-                        className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl p-3 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <span className="material-symbols-outlined">add</span>
-                    </button>
-                </form>
+                            <span className="material-symbols-outlined">add</span>
+                        </button>
+                    </form>
+                </div>
             </div>
 
             {/* Kanban Board */}

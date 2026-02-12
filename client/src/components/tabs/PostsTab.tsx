@@ -97,10 +97,21 @@ export function PostsTab({ nicheId }: PostsTabProps) {
     };
 
     const handleSelectAsset = (assetId: string) => {
-        if (!formData.assetIds.includes(assetId)) {
-            setFormData({ ...formData, assetIds: [...formData.assetIds, assetId] });
+        if (formData.type === 'POST') {
+            // Multi-select for POST
+            if (formData.assetIds.includes(assetId)) {
+                // Deselect
+                setFormData({ ...formData, assetIds: formData.assetIds.filter(id => id !== assetId) });
+            } else {
+                // Select
+                setFormData({ ...formData, assetIds: [...formData.assetIds, assetId] });
+            }
+            // Don't close modal
+        } else {
+            // Single select for REEL/STORY
+            setFormData({ ...formData, assetIds: [assetId] });
+            setShowMediaSelector(false);
         }
-        setShowMediaSelector(false);
     };
 
     const handleUploadInModal = async (file: File) => {
@@ -365,6 +376,9 @@ export function PostsTab({ nicheId }: PostsTabProps) {
                 assets={assets}
                 usedAssetIds={usedAssetIds}
                 onUpload={handleUploadInModal}
+                type={formData.type}
+                allowMultiple={formData.type === 'POST'}
+                selectedAssetIds={formData.assetIds}
             />
 
             {/* Delete Confirmation */}

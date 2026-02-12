@@ -78,7 +78,7 @@ export function AssetsTab({ nicheId }: AssetsTabProps) {
 
             {/* File Upload */}
             <div className="mb-6">
-                <FileUpload onUpload={handleUpload} uploading={uploading} />
+                <FileUpload onUpload={handleUpload} uploading={uploading} multiple={true} />
             </div>
 
             {/* Assets Grid */}
