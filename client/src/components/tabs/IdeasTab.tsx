@@ -120,7 +120,7 @@ export function IdeasTab({ nicheId }: IdeasTabProps) {
                                             {idea.hook}
                                         </p>
                                         {idea.description && (
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-3">
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 whitespace-pre-wrap">
                                                 {idea.description}
                                             </p>
                                         )}

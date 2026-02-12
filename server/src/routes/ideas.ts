@@ -59,7 +59,7 @@ router.post('/niches/:nicheId/ideas', async (req, res, next) => {
 });
 
 // PATCH /ideas/:id
-router.patch('/:id', async (req, res, next) => {
+router.patch('/ideas/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         const data = updateIdeaSchema.parse(req.body);
@@ -79,7 +79,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // DELETE /ideas/:id
-router.delete('/:id', async (req, res, next) => {
+router.delete('/ideas/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
 
